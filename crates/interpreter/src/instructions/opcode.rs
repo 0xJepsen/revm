@@ -274,8 +274,8 @@ pub const OPCODE_JUMPMAP: [Option<&'static str>; 256] = [
     /* 0x59 */ Some("MSIZE"),
     /* 0x5a */ Some("GAS"),
     /* 0x5b */ Some("JUMPDEST"),
-    /* 0x5c */ None,
-    /* 0x5d */ None,
+    /* 0x5c */ Some("TLOAD"),
+    /* 0x5d */ Some("TSTORE"),
     /* 0x5e */ None,
     /* 0x5f */ Some("PUSH0"),
     /* 0x60 */ Some("PUSH1"),
@@ -656,8 +656,18 @@ macro_rules! gas_opcodee {
             /* 0x5b  JUMPDEST */
             // gas::JUMPDEST gas is calculated in function call,
             OpInfo::jumpdest(),
-            /* 0x5c */ OpInfo::none(),
-            /* 0x5d */ OpInfo::none(),
+            /* 0x5c TLOAD */ 
+            OpInfo::gas(if SpecId::enabled($spec_id, SpecId::SHANGHAI) {
+                gas::WARM_STORAGE_READ_COST
+            } else {
+                0
+            }),
+            /* 0x5d TSTORE */   
+            OpInfo::gas(if SpecId::enabled($spec_id, SpecId::SHANGHAI) {
+                gas::WARM_STORAGE_READ_COST
+            } else {
+                0
+            }),
             /* 0x5e */ OpInfo::none(),
             /* 0x5f PUSH0 */
             OpInfo::gas(if SpecId::enabled($spec_id, SpecId::SHANGHAI) {
